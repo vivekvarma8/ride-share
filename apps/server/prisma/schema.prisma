@@ -1,0 +1,160 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PASSENGER
+  DRIVER
+  ADMIN
+}
+
+enum RideStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum NotificationType {
+  RIDE_REQUEST
+  REQUEST_APPROVED
+  REQUEST_DECLINED
+  RIDE_CANCELLED
+  SYSTEM
+}
+
+model User {
+  id              String         @id @default(uuid())
+  email           String         @unique
+  passwordHash    String?
+  name            String
+  avatarUrl       String?
+  role            Role           @default(PASSENGER)
+  department      String?
+  phoneNumber     String?
+  bio             String?
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  vehicles        Vehicle[]
+  ridesDriven     Ride[]
+  requests        RideRequest[]
+  reviewsGiven    Review[]       @relation("ReviewsGiven")
+  reviewsReceived Review[]       @relation("ReviewsReceived")
+  notifications   Notification[]
+
+  @@index([email])
+}
+
+model Vehicle {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  make         String
+  model        String
+  year         Int
+  color        String
+  licensePlate String   @unique
+  capacity     Int
+  createdAt    DateTime @default(now())
+
+  rides        Ride[]
+
+  @@index([userId])
+}
+
+model Ride {
+  id             String        @id @default(uuid())
+  driverId       String
+  driver         User          @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  vehicleId      String
+  vehicle        Vehicle       @relation(fields: [vehicleId], references: [id])
+  origin         String
+  originLat      Float?
+  originLng      Float?
+  destination    String
+  destLat        Float?
+  destLng        Float?
+  currentLat     Float?
+  currentLng     Float?
+  departureTime  DateTime
+  startedAt      DateTime?
+  completedAt    DateTime?
+  totalSeats     Int
+  availableSeats Int
+  pricePerSeat   Float         @default(0.0)
+  status         RideStatus    @default(SCHEDULED)
+  notes          String?
+  createdAt      DateTime      @default(now())
+
+  requests       RideRequest[]
+  reviews        Review[]
+
+  @@index([driverId])
+  @@index([departureTime])
+  @@index([status])
+}
+
+model RideRequest {
+  id          String        @id @default(uuid())
+  rideId      String
+  ride        Ride          @relation(fields: [rideId], references: [id], onDelete: Cascade)
+  passengerId String
+  passenger   User          @relation(fields: [passengerId], references: [id], onDelete: Cascade)
+  seats       Int           @default(1)
+  status      RequestStatus @default(PENDING)
+  pickupNote  String?
+  otp         String?
+  isBoarded   Boolean       @default(false)
+  boardedAt   DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([rideId])
+  @@index([passengerId])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  rideId     String
+  ride       Ride     @relation(fields: [rideId], references: [id])
+  reviewerId String
+  reviewer   User     @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  revieweeId String
+  reviewee   User     @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  @@index([rideId])
+  @@index([revieweeId])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType
+  metadata  Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}

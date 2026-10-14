@@ -1,0 +1,51 @@
+services:
+  # 1. Backend Web Service (Node.js + Express + Socket.IO + Prisma)
+  - type: web
+    name: rideshare-backend
+    runtime: node
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rideshare-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_EMAIL_DOMAINS
+        value: gmail.com,yahoo.com,outlook.com,routemate.com,org.com,college.edu
+      - key: EMAIL_FROM_NAME
+        value: ride-share
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_APP_PASSWORD
+        sync: false
+
+  # 2. Frontend Client (Vite + React Static Site)
+  - type: static
+    name: rideshare-frontend
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: apps/client/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
+
+databases:
+  # 3. PostgreSQL Database
+  - name: rideshare-db
+    plan: free
+    databaseName: rideshare_db
+    user: rideshare
