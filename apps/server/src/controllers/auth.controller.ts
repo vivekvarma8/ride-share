@@ -27,8 +27,12 @@ export class AuthController {
         where: { email },
       });
 
-      if (!user || !user.passwordHash) {
-        throw new AppError('Invalid email or password.', 401, 'INVALID_CREDENTIALS');
+      if (!user) {
+        throw new AppError('No account found with this email. Please switch to "Create Account" first.', 401, 'USER_NOT_FOUND');
+      }
+
+      if (!user.passwordHash) {
+        throw new AppError('This account was created via Google Sign-In and has no password yet. Please click "Continue with Google" or set a password in the "Create Account" tab.', 401, 'GOOGLE_ACCOUNT_NO_PASSWORD');
       }
 
       const isPasswordValid = verifyPassword(password, user.passwordHash);
@@ -98,7 +102,49 @@ export class AuthController {
       });
 
       if (existingUser) {
-        throw new AppError('An account with this email already exists. Please sign in.', 400, 'USER_EXISTS');
+        if (existingUser.passwordHash) {
+          throw new AppError('An account with this email already exists. Please sign in.', 400, 'USER_EXISTS');
+        }
+
+        // Account was created via Google Sign-In with no password - set their password!
+        const passwordHash = hashPassword(data.password);
+        const updated = await prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            passwordHash,
+            name: data.name.trim() || existingUser.name,
+            role: (data.role as any) || existingUser.role,
+            department: data.department?.trim() || existingUser.department,
+            phoneNumber: data.phoneNumber?.trim() || existingUser.phoneNumber,
+          },
+        });
+
+        const token = signToken({
+          userId: updated.id,
+          email: updated.email,
+          role: updated.role as UserRole,
+        });
+
+        res.status(200).json({
+          success: true,
+          message: 'Password created successfully. You are now signed in!',
+          data: {
+            token,
+            user: {
+              id: updated.id,
+              email: updated.email,
+              name: updated.name,
+              role: updated.role,
+              avatarUrl: updated.avatarUrl,
+              department: updated.department,
+              phoneNumber: updated.phoneNumber,
+              bio: updated.bio,
+              isActive: updated.isActive,
+              createdAt: updated.createdAt.toISOString(),
+            },
+          },
+        });
+        return;
       }
 
       // Hash password using native crypto
