@@ -58,7 +58,7 @@ const authLimiter = rateLimit({
 });
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.status(200).json({
     success: true,
     data: {
@@ -70,13 +70,13 @@ app.get('/api/health', (req, res) => {
 });
 
 // Route Mounts
-app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/rides', rideRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/locations', locationRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/admin', adminRoutes);
+app.use(['/api/auth', '/auth'], authLimiter, authRoutes);
+app.use(['/api/vehicles', '/vehicles'], vehicleRoutes);
+app.use(['/api/rides', '/rides'], rideRoutes);
+app.use(['/api/reviews', '/reviews'], reviewRoutes);
+app.use(['/api/locations', '/locations'], locationRoutes);
+app.use(['/api/notifications', '/notifications'], notificationRoutes);
+app.use(['/api/admin', '/admin'], adminRoutes);
 
 // Error Handling
 app.use(notFoundHandler);
