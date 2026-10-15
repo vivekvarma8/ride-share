@@ -22,7 +22,7 @@ export class NotificationService {
         title,
         message,
         type,
-        metadata: metadata ? (metadata as Prisma.InputJsonValue) : Prisma.JsonNull,
+        metadata: metadata ? (metadata as any) : undefined,
       },
     });
 
@@ -58,7 +58,7 @@ export class NotificationService {
     });
 
     return {
-      notifications: notifications.map((n) => ({
+      notifications: notifications.map((n: any) => ({
         id: n.id,
         userId: n.userId,
         title: n.title,

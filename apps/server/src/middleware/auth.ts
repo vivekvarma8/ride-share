@@ -2,13 +2,17 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyToken, JwtPayload } from '../utils/jwt';
 import { prisma } from '../utils/prisma';
 import { AppError } from './error-handler';
-import { Role } from '@prisma/client';
+export enum Role {
+  PASSENGER = 'PASSENGER',
+  DRIVER = 'DRIVER',
+  ADMIN = 'ADMIN',
+}
 
 export interface AuthenticatedUser {
   id: string;
   email: string;
   name: string;
-  role: Role;
+  role: Role | any;
   isActive: boolean;
   department: string | null;
   avatarUrl: string | null;
@@ -63,7 +67,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    req.user = user;
+    req.user = user as any;
     next();
   } catch (err) {
     next(err);

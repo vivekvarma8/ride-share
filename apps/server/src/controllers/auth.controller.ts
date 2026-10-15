@@ -280,7 +280,7 @@ export class AuthController {
       const totalReviews = user.reviewsReceived.length;
       const ratingAverage =
         totalReviews > 0
-          ? Number((user.reviewsReceived.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1))
+          ? Number((user.reviewsReceived.reduce((acc: any, r: any) => acc + r.rating, 0) / totalReviews).toFixed(1))
           : 5.0;
 
       res.status(200).json({

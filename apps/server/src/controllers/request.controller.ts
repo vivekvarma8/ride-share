@@ -136,7 +136,7 @@ export class RequestController {
 
       if (action === 'APPROVE') {
         // Atomic seat reservation inside transaction
-        const updated = await prisma.$transaction(async (tx) => {
+        const updated = await prisma.$transaction(async (tx: any) => {
           // Re-fetch ride with current availableSeats
           const currentRide = await tx.ride.findUnique({
             where: { id: rideId },
@@ -280,7 +280,7 @@ export class RequestController {
       // If approved, restore seats atomically
       const wasApproved = request.status === RequestStatus.APPROVED;
 
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         await tx.rideRequest.update({
           where: { id: requestId },
           data: { status: RequestStatus.CANCELLED },

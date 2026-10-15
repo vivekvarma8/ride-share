@@ -68,7 +68,7 @@ export class AdminController {
 
       res.status(200).json({
         success: true,
-        data: users.map((u) => ({
+        data: users.map((u: any) => ({
           id: u.id,
           name: u.name,
           email: u.email,
@@ -226,7 +226,7 @@ export class AdminController {
         throw new AppError('Ride not found', 404, 'NOT_FOUND');
       }
 
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         await tx.ride.update({
           where: { id },
           data: { status: RideStatus.CANCELLED },
@@ -280,7 +280,7 @@ export class AdminController {
         throw new AppError('Ride not found', 404, 'NOT_FOUND');
       }
 
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         await tx.review.deleteMany({ where: { rideId: id } });
         await tx.rideRequest.deleteMany({ where: { rideId: id } });
         await tx.ride.delete({ where: { id } });
@@ -310,9 +310,9 @@ export class AdminController {
         throw new AppError('Vehicle not found', 404, 'NOT_FOUND');
       }
 
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         const pastRides = await tx.ride.findMany({ where: { vehicleId: id }, select: { id: true } });
-        const rideIds = pastRides.map((r) => r.id);
+        const rideIds = pastRides.map((r: any) => r.id);
         if (rideIds.length > 0) {
           await tx.review.deleteMany({ where: { rideId: { in: rideIds } } });
           await tx.rideRequest.deleteMany({ where: { rideId: { in: rideIds } } });

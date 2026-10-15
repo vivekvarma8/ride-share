@@ -106,9 +106,9 @@ export class VehicleController {
         );
       }
 
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         const pastRides = await tx.ride.findMany({ where: { vehicleId: id }, select: { id: true } });
-        const rideIds = pastRides.map((r) => r.id);
+        const rideIds = pastRides.map((r: any) => r.id);
         if (rideIds.length > 0) {
           await tx.review.deleteMany({ where: { rideId: { in: rideIds } } });
           await tx.rideRequest.deleteMany({ where: { rideId: { in: rideIds } } });

@@ -11,7 +11,7 @@
     "dev": "npm run dev --workspaces --if-present",
     "dev:server": "npm run dev --workspace=server",
     "dev:client": "npm run dev --workspace=client",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run db:generate && npm run build --workspaces --if-present",
     "test": "npm run test --workspace=server",
     "test:watch": "npm run test:watch --workspace=server",
     "lint": "npm run lint --workspaces --if-present",
@@ -22,7 +22,8 @@
     "start": "npm run start --workspace=server",
     "start:prod": "npx prisma db push --schema=apps/server/prisma/schema.prisma && npm run start --workspace=server",
     "db:push": "npm run db:push --workspace=server",
-    "render-build": "npm install --include=dev && npm run db:generate && npm run build"
+    "render-build": "npm install --include=dev && npm run db:generate && npm run build",
+    "postinstall": "npm run db:generate"
   },
   "keywords": [
     "rideshare",

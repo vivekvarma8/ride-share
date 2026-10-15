@@ -63,19 +63,19 @@ export function globalErrorHandler(
   }
 
   // Handle Prisma Known Request Errors
-  if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    if (err.code === 'P2002') {
+  if ((err as any)?.name === "PrismaClientKnownRequestError" || ((Prisma as any)?.PrismaClientKnownRequestError && err instanceof (Prisma as any).PrismaClientKnownRequestError)) {
+    if ((err as any).code === 'P2002') {
       res.status(409).json({
         success: false,
         error: {
           code: 'CONFLICT',
           message: 'A unique constraint was violated on the database',
-          details: err.meta,
+          details: (err as any).meta,
         },
       });
       return;
     }
-    if (err.code === 'P2025') {
+    if ((err as any).code === 'P2025') {
       res.status(404).json({
         success: false,
         error: {

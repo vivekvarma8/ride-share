@@ -88,7 +88,7 @@ export class RideController {
     try {
       const query = SearchRidesSchema.parse(req.query);
 
-      const whereClause: Prisma.RideWhereInput = {
+      const whereClause: any = {
         status: RideStatus.SCHEDULED,
         availableSeats: { gte: query.seats ?? 1 },
         departureTime: { gte: new Date() },
@@ -354,7 +354,7 @@ export class RideController {
       }
 
       // Execute transaction to update ride and requests atomically
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         await tx.ride.update({
           where: { id },
           data: { status: RideStatus.CANCELLED },
@@ -466,7 +466,7 @@ export class RideController {
         throw new AppError('You do not have permission to delete this ride', 403, 'FORBIDDEN');
       }
 
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         await tx.review.deleteMany({ where: { rideId: id } });
         await tx.rideRequest.deleteMany({ where: { rideId: id } });
         await tx.ride.delete({ where: { id } });

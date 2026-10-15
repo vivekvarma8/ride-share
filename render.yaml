@@ -4,7 +4,7 @@ services:
     name: rideshare-backend
     runtime: node
     plan: free
-    buildCommand: npm run render-build
+    buildCommand: npm install --include=dev && npm run db:generate && npm run build
     startCommand: npm run start:prod
     healthCheckPath: /api/health
     envVars:
