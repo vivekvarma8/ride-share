@@ -22,7 +22,7 @@
     "start": "npm run start --workspace=server",
     "start:prod": "npx prisma db push --schema=apps/server/prisma/schema.prisma && npm run start --workspace=server",
     "db:push": "npm run db:push --workspace=server",
-    "render-build": "npm install && npm run db:generate && npm run build"
+    "render-build": "npm install --include=dev && npm run db:generate && npm run build"
   },
   "keywords": [
     "rideshare",

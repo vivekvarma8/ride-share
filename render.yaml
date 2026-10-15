@@ -31,7 +31,7 @@ services:
   - type: static
     name: rideshare-frontend
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     staticPublishPath: apps/client/dist
     routes:
       - type: rewrite
